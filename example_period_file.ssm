@@ -3,6 +3,7 @@ default_value=0
 time=period
 time_start=0
 time_period=0.1
+N=10
 ----
 0;0,1,12
 2;1,1,1
