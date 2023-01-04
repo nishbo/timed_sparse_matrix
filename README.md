@@ -25,7 +25,7 @@ NOT IMPLEMENTED
 
 Everything above 4 dashes (`----`) contains meta-information, below that line is only data. Meta-information has description of the data structure.
 
-`dim` describes dimensionality of matrices at each point of time, separated by commas. E.g., `dims=5` means that the data are vectors of five elements; `dim=3,4` -- 3 by 4 matrices; `dim=3,4,5` -- tensors of 3x4x5 shape, and so on. The loaded data is then of format [time index][first data axis index][second data axis index], etc. For more detail, see specific language implementation descriptions.
+`dims` describes dimensionality of matrices at each point of time, separated by commas. E.g., `dims=5` means that the data are vectors of five elements; `dims=3,4` -- 3 by 4 matrices; `dims=3,4,5` -- tensors of 3x4x5 shape, and so on. The loaded data is then of format [time index][first data axis index][second data axis index], etc. For more detail, see specific language implementation descriptions.
 
 `default_value` describes the default value used for all omitted elements, e.g. `default_value=0` or `default_value=NaN`.
 
