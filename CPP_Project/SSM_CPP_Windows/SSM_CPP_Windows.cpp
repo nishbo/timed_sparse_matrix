@@ -16,10 +16,10 @@ int main()
 	fs::path current_path = fs::current_path();
 	fs::path exec_dir;
 	string basename = current_path.filename().string();
-	cout << "Current path: " << current_path << "." << endl;
+	//cout << "Current path: " << current_path << "." << endl;
 	if (basename == "Debug") {
 		// simple_sparse_matrix\\CPP_Project\\x64\\Debug
-		exec_dir = current_path / ".." / "..";
+		exec_dir = current_path / ".." / ".." / "..";
 	}
 	else {
 		// simple_sparse_matrix\\CPP_Project\\SSM_CPP_Windows

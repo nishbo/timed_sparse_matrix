@@ -9,7 +9,7 @@ class COMMA_SEPARATED_VIEW
 {
 public:
 	COMMA_SEPARATED_VIEW() = delete;
-	COMMA_SEPARATED_VIEW(std::string str);
+	COMMA_SEPARATED_VIEW(std::string str, char separator=',');
 
 	std::string_view operator[](std::size_t index) const;
 	std::size_t size() const;
@@ -18,13 +18,14 @@ private:
 	vector<size_t> m_data;
 };
 
-COMMA_SEPARATED_VIEW::COMMA_SEPARATED_VIEW(std::string str) {
+COMMA_SEPARATED_VIEW::COMMA_SEPARATED_VIEW(std::string str, char separator) {
+	// TODO check for str len 0
 	m_str = str;
 	m_data.clear();
 
 	size_t pos = 0;
 	m_data.emplace_back(pos - 1);
-	while ((pos = m_str.find(',', pos)) != std::string::npos) {
+	while ((pos = m_str.find(separator, pos)) != std::string::npos) {
 		m_data.emplace_back(pos);
 		++pos;
 	}
@@ -44,28 +45,134 @@ std::size_t COMMA_SEPARATED_VIEW::size() const
 	return m_data.size() - 1;
 }
 
-//------------------------------------------- SSM class
-int SSM::load(const string filename, double* time, double* data, int* dims, int& numdim)
+//------------------------------------------- SSM_LINE
+class SSM_LINE
 {
+public:
+	SSM_LINE() = delete;
+	SSM_LINE(size_t _num, SSM_HEADER_VARIABLES& shv);
+	SSM_LINE(std::string str, SSM_HEADER_VARIABLES& shv);
+
+	size_t num = -1;
+	double time = -1;
+	COMMA_SEPARATED_VIEW line;
+
+	COMMA_SEPARATED_VIEW operator[](std::size_t index) const;
+	std::size_t size() const;
+private:
+
+};
+
+SSM_LINE::SSM_LINE(size_t _num, SSM_HEADER_VARIABLES& shv) : line("", ';')
+{
+}
+
+SSM_LINE::SSM_LINE(std::string str, SSM_HEADER_VARIABLES& shv) : line(str, ';')
+{
+	switch (shv.filetype)
+	{
+	case SSM_FILETYPE::STAMPS:
+		time = atof(string(line[0]).c_str());
+		// num is unset
+		break;
+	case SSM_FILETYPE::PERIOD:
+		num = atoi(string(line[0]).c_str());
+		// no need for time - is set outside
+		// time = shv.time_start + shv.time_period * num;
+		break;
+	default:
+		// not implemented
+		// TODO meaning
+		throw(exception());
+		break;
+	}
+}
+
+COMMA_SEPARATED_VIEW SSM_LINE::operator[](std::size_t index) const
+{
+	return COMMA_SEPARATED_VIEW(string(line[index+1]));
+}
+
+std::size_t SSM_LINE::size() const
+{
+	return line.size() - 1;
+}
+
+//------------------------------------------- SSM class
+int SSM::load(const string filename, double* time, double* data, size_t& N, int* dims, int& numdim)
+{
+	// set to null
+	time = nullptr;
+	data = nullptr;
+	dims = nullptr;
+
+	// open file
 	std::ifstream infile(filename);
 	if (!infile.is_open())
 		return -1;
 
+	// process header
 	SSM_HEADER_VARIABLES shv;
 	if (SSM::process_header(infile, shv) < 0)
 		return -2;
+	dims = shv.dims;
+	numdim = shv.numdim;
+
+	// total number of elements per tensor
+	size_t M = 1;
+	for (size_t i_dim = 0; i_dim < numdim; i_dim++)
+		M *= dims[i_dim];
 
 	// load the rest of the file into a buffer to estimate the size for allocation
 	string line;
-	vector<string> filebuf;
+	vector<SSM_LINE> file_line_buffer;
 	while (getline(infile, line)) {
-		filebuf.push_back(line);
+		if (~line.empty())
+			file_line_buffer.push_back(SSM_LINE(line, shv));
 	}
 
-	// TODO allocate
+	// figure out the number of time points
 	// depending on type and N
+	switch (shv.filetype)
+	{
+	case SSM_FILETYPE::STAMPS:
+		shv.N = file_line_buffer.size();
+		break;
+	case SSM_FILETYPE::PERIOD:
+		// assumes the lines are ordered
+		// specify in docs
+		shv.N = max(shv.N, file_line_buffer.back().num+1);
+		break;
+	default:
+		// not implemented
+		// TODO meaning
+		throw(exception());
+		break;
+	}
+	N = shv.N;
+
+	if (N == 0)
+		return 1;  // empty
+
+	// allocate
+	time = new double(N);
+	data = new double(N * M);
+
+	// fill
+	switch (shv.filetype)
+	{
+	case SSM_FILETYPE::STAMPS:
+		for (size_t i = 0; i < N; i++)
+			time[i] = file_line_buffer[i].time;
+		break;
+	case SSM_FILETYPE::PERIOD:
+		for (size_t i = 0; i < N; i++)
+			time[i] = shv.time_start + shv.time_period * i;
+		break;
+	}
+
 	
-	// TODO load
+	// TODO transfer from buffer
 
 	return 0;
 }
@@ -103,6 +210,11 @@ int SSM::process_header(ifstream& infile, SSM_HEADER_VARIABLES& shv)
 	return 0;
 }
 
+//-------------------------- SSM_HEADER_VARIABLES
+SSM_HEADER_VARIABLES::~SSM_HEADER_VARIABLES()
+{
+}
+
 bool SSM_HEADER_VARIABLES::is_valid()
 {
 	if (!dims || !numdim) {
@@ -132,7 +244,6 @@ bool SSM_HEADER_VARIABLES::is_valid()
 
 int SSM_HEADER_VARIABLES::set_var(std::string var_name, std::string str)
 {
-	cout << var_name << "=" << str << endl;
 	if (auto search = m_setter_map.find(var_name); search != m_setter_map.end()) {
 		// found
 		int answ = (this->*(search->second))(str);

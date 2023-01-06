@@ -2,6 +2,8 @@
 
 Load sparse matrices and tensors with time stamps into a standard matrix in Python, MATLAB, and C++.
 
+Rename to 'tsm' - timed sparse matrix?
+
 
 ## I/O functions
 

@@ -17,6 +17,8 @@ enum class SSM_FILETYPE
 class SSM_HEADER_VARIABLES
 {
 public:
+	~SSM_HEADER_VARIABLES();
+
 	int* dims = nullptr;
 	int numdim = 0;
 
@@ -24,7 +26,8 @@ public:
 
 	SSM_FILETYPE filetype = SSM_FILETYPE::NONETYPE;
 
-	int N = -1;
+	// scans using atoi, so still restricted to integer
+	size_t N = -1;
 
 	// for SSM_FILETYPE::PERIOD
 	double time_start = 0;  // TODO note in docs that default is 0
@@ -58,7 +61,7 @@ class SSM
 public:
 	SSM() = delete;
 
-	static int load(const std::string filename, double* time, double* data, int* dims, int& numdim);
+	static int load(const std::string filename, double* time, double* data, size_t& N, int* dims, int& numdim);
 	static int save(const std::string filename, const double* time, const double* data, const int* dims, const int numdim);
 
 private:
