@@ -64,7 +64,10 @@ public:
 	static int load(const std::string filename, double* time, double* data, size_t& N, int* dims, int& numdim);
 	static int save(const std::string filename, const double* time, const double* data, const int* dims, const int numdim);
 
+	// TODO make 2D and 1D simplified APIs
+
 private:
 	static int process_header(std::ifstream& infile, SSM_HEADER_VARIABLES& shv);
+	static size_t pos2ind(const int* pos, const size_t* dim_mult, const int numdim);
 };
 

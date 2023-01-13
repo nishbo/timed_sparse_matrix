@@ -9,7 +9,7 @@ Rename to 'tsm' - timed sparse matrix?
 
 Load function accepts filename (with extension), and returns 2 arrays: one array with timepoints, and one array with normal matrices created according to the description in the file.
 
-Save function accepts a filename (with extension), data matrices, and time defined either as start time and period, or as timestamps with the same length as data matrices first index. You can also provide the default value, or let it be calculated as the highest mode in the data.
+Save function accepts a filename (with extension), data matrices, and time defined either as start time and period, or as timestamps with the same length as data matrices first index. You can also provide the default value, or let it be calculated as the highest mode in the data. NaN and Inf currently are not supported.
 
 ### Python
 

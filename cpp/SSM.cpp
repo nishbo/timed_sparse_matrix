@@ -82,7 +82,7 @@ SSM_LINE::SSM_LINE(std::string str, SSM_HEADER_VARIABLES& shv) : line(str, ';')
 		break;
 	default:
 		// not implemented
-		// TODO meaning
+		// TODO meaningful throw
 		throw(exception());
 		break;
 	}
@@ -99,6 +99,14 @@ std::size_t SSM_LINE::size() const
 }
 
 //------------------------------------------- SSM class
+size_t SSM::pos2ind(const int* pos, const size_t* dim_mult, const int numdim)
+{
+	size_t answ = 0;
+	for (int i_dim = 0; i_dim < numdim; i_dim++)
+		answ += dim_mult[i_dim] * pos[i_dim];
+	return answ;
+}
+
 int SSM::load(const string filename, double* time, double* data, size_t& N, int* dims, int& numdim)
 {
 	// set to null
@@ -110,6 +118,7 @@ int SSM::load(const string filename, double* time, double* data, size_t& N, int*
 	std::ifstream infile(filename);
 	if (!infile.is_open())
 		return -1;
+	cout << "Opened file." << endl;
 
 	// process header
 	SSM_HEADER_VARIABLES shv;
@@ -117,19 +126,24 @@ int SSM::load(const string filename, double* time, double* data, size_t& N, int*
 		return -2;
 	dims = shv.dims;
 	numdim = shv.numdim;
+	cout << "Processed header." << endl;
 
 	// total number of elements per tensor
+	size_t* dim_mult = new size_t[numdim];
 	size_t M = 1;
-	for (size_t i_dim = 0; i_dim < numdim; i_dim++)
+	for (int i_dim = 0; i_dim < numdim; i_dim++) {
+		dim_mult[numdim - 1 - i_dim] = M;
 		M *= dims[i_dim];
+	}
+	cout << "Calculated dimensions." << endl;
 
 	// load the rest of the file into a buffer to estimate the size for allocation
 	string line;
 	vector<SSM_LINE> file_line_buffer;
-	while (getline(infile, line)) {
-		if (~line.empty())
+	while (getline(infile, line))
+		if (!line.empty())
 			file_line_buffer.push_back(SSM_LINE(line, shv));
-	}
+	cout << "Buffered file info." << endl;
 
 	// figure out the number of time points
 	// depending on type and N
@@ -145,7 +159,7 @@ int SSM::load(const string filename, double* time, double* data, size_t& N, int*
 		break;
 	default:
 		// not implemented
-		// TODO meaning
+		// TODO meaningful throw
 		throw(exception());
 		break;
 	}
@@ -155,24 +169,64 @@ int SSM::load(const string filename, double* time, double* data, size_t& N, int*
 		return 1;  // empty
 
 	// allocate
-	time = new double(N);
-	data = new double(N * M);
+	time = new double[N];
+	data = new double[N * M];
 
 	// fill
+	// sorry if you are fixing overflow here
+	for (size_t i = 0; i < M * N; i++)
+		data[i] = shv.default_value;
+	cout << "Allocated memory." << endl;
+
+	// transfer from buffer
+	int* pos = new int[numdim];
 	switch (shv.filetype)
 	{
 	case SSM_FILETYPE::STAMPS:
-		for (size_t i = 0; i < N; i++)
+		for (size_t i = 0; i < N; i++) {
 			time[i] = file_line_buffer[i].time;
+			for (size_t j = 0; j < file_line_buffer[i].size(); j++)
+			{
+				COMMA_SEPARATED_VIEW csv = file_line_buffer[i][j];
+				for (size_t i_dim = 0; i_dim < numdim; i_dim++)
+					pos[i_dim] = atoi(string(csv[i_dim]).c_str());
+
+				data[i * M + pos2ind(pos, dim_mult, numdim)] = atof(string(csv[numdim]).c_str());
+			}
+		}
 		break;
 	case SSM_FILETYPE::PERIOD:
 		for (size_t i = 0; i < N; i++)
 			time[i] = shv.time_start + shv.time_period * i;
+
+		for (SSM_LINE& flb : file_line_buffer) {
+			for (size_t j = 0; j < flb.size(); j++)
+			{
+				COMMA_SEPARATED_VIEW csv = flb[j];
+				for (size_t k = 0; k < numdim; k++)
+					pos[k] = atoi(string(csv[k]).c_str());
+
+				data[flb.num * M + pos2ind(pos, dim_mult, numdim)] = atof(string(csv[numdim]).c_str());
+			}
+		}
+
 		break;
 	}
+	cout << "Transferred from buffer." << endl;
 
-	
-	// TODO transfer from buffer
+	// TESTING
+	for (size_t i = 0; i < N; i++)
+	{
+		cout << to_string(time[i]) << ":";
+
+		for (size_t j = 0; j < M; j++)
+		{
+			cout << " " << to_string(data[i * M + j]);
+		}
+		cout << endl;
+	}
+
+	delete [] dim_mult;
 
 	return 0;
 }
