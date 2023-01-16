@@ -1,24 +1,10 @@
-#include "SSM.h"
+#include "tsm.h"
 
 using namespace std;
+using namespace TSM;
 
 //------------------------------------------- COMMA_SEPARATED_VIEW
-// used to go through comma-sepearated strings
-// a variation on CSVReader
-class COMMA_SEPARATED_VIEW
-{
-public:
-	COMMA_SEPARATED_VIEW() = delete;
-	COMMA_SEPARATED_VIEW(std::string str, char separator=',');
-
-	std::string_view operator[](std::size_t index) const;
-	std::size_t size() const;
-private:
-	string m_str;
-	vector<size_t> m_data;
-};
-
-COMMA_SEPARATED_VIEW::COMMA_SEPARATED_VIEW(std::string str, char separator) {
+TsmCommaSeparatedView::TsmCommaSeparatedView(std::string str, char separator) {
 	// TODO check for str len 0
 	m_str = str;
 	m_data.clear();
@@ -34,48 +20,31 @@ COMMA_SEPARATED_VIEW::COMMA_SEPARATED_VIEW(std::string str, char separator) {
 	m_data.emplace_back(pos);
 }
 
-std::string_view COMMA_SEPARATED_VIEW::operator[](std::size_t index) const
+std::string_view TsmCommaSeparatedView::operator[](std::size_t index) const
 {
 	return std::string_view(&m_str[m_data[index] + 1], m_data[index + 1] - (m_data[index] + 1));
 
 }
 
-std::size_t COMMA_SEPARATED_VIEW::size() const
+std::size_t TsmCommaSeparatedView::size() const
 {
 	return m_data.size() - 1;
 }
 
-//------------------------------------------- SSM_LINE
-class SSM_LINE
-{
-public:
-	SSM_LINE() = delete;
-	SSM_LINE(size_t _num, SSM_HEADER_VARIABLES& shv);
-	SSM_LINE(std::string str, SSM_HEADER_VARIABLES& shv);
-
-	size_t num = -1;
-	double time = -1;
-	COMMA_SEPARATED_VIEW line;
-
-	COMMA_SEPARATED_VIEW operator[](std::size_t index) const;
-	std::size_t size() const;
-private:
-
-};
-
-SSM_LINE::SSM_LINE(size_t _num, SSM_HEADER_VARIABLES& shv) : line("", ';')
+//------------------------------------------- TsmLine
+TsmLine::TsmLine(size_t _num, TsmHeaderVariables& shv) : line("", ';')
 {
 }
 
-SSM_LINE::SSM_LINE(std::string str, SSM_HEADER_VARIABLES& shv) : line(str, ';')
+TsmLine::TsmLine(std::string str, TsmHeaderVariables& shv) : line(str, ';')
 {
 	switch (shv.filetype)
 	{
-	case SSM_FILETYPE::STAMPS:
+	case TSM_FILETYPE::STAMPS:
 		time = atof(string(line[0]).c_str());
 		// num is unset
 		break;
-	case SSM_FILETYPE::PERIOD:
+	case TSM_FILETYPE::PERIOD:
 		num = atoi(string(line[0]).c_str());
 		// no need for time - is set outside
 		// time = shv.time_start + shv.time_period * num;
@@ -88,18 +57,18 @@ SSM_LINE::SSM_LINE(std::string str, SSM_HEADER_VARIABLES& shv) : line(str, ';')
 	}
 }
 
-COMMA_SEPARATED_VIEW SSM_LINE::operator[](std::size_t index) const
+TsmCommaSeparatedView TsmLine::operator[](std::size_t index) const
 {
-	return COMMA_SEPARATED_VIEW(string(line[index+1]));
+	return TsmCommaSeparatedView(string(line[index+1]));
 }
 
-std::size_t SSM_LINE::size() const
+std::size_t TsmLine::size() const
 {
 	return line.size() - 1;
 }
 
-//------------------------------------------- SSM class
-size_t SSM::pos2ind(const int* pos, const size_t* dim_mult, const int numdim)
+//------------------------------------------- Tsm class
+size_t Tsm::pos2ind(const int* pos, const size_t* dim_mult, const int numdim)
 {
 	size_t answ = 0;
 	for (int i_dim = 0; i_dim < numdim; i_dim++)
@@ -107,7 +76,30 @@ size_t SSM::pos2ind(const int* pos, const size_t* dim_mult, const int numdim)
 	return answ;
 }
 
-int SSM::load(const string filename, double* time, double* data, size_t& N, int* dims, int& numdim)
+size_t Tsm::calc_matrix_M(const int* dims, const int numdim)
+{
+	size_t M = 1;
+	for (int i_dim = 0; i_dim < numdim; i_dim++)
+		M *= dims[i_dim];
+	return M;
+}
+
+void Tsm::print(const double* time, const double* data, const size_t& N, const int* dims, const int& numdim)
+{
+	size_t M = calc_matrix_M(dims, numdim);
+	for (size_t i = 0; i < N; i++) {
+		cout << to_string(time[i]) << ":";
+
+		for (size_t i_dim = 0; i_dim < numdim; i_dim++) {
+			for (size_t j = 0; j < dims[i_dim]; j++)
+				cout << " " << to_string(data[i * M + j]);
+			cout << endl;
+		}
+		cout << endl;
+	}
+}
+
+int Tsm::load(const string filename, double* time, double* data, size_t& N, int* dims, int& numdim)
 {
 	// set to null
 	time = nullptr;
@@ -121,8 +113,8 @@ int SSM::load(const string filename, double* time, double* data, size_t& N, int*
 	cout << "Opened file." << endl;
 
 	// process header
-	SSM_HEADER_VARIABLES shv;
-	if (SSM::process_header(infile, shv) < 0)
+	TsmHeaderVariables shv;
+	if (Tsm::process_header(infile, shv) < 0)
 		return -2;
 	dims = shv.dims;
 	numdim = shv.numdim;
@@ -139,20 +131,20 @@ int SSM::load(const string filename, double* time, double* data, size_t& N, int*
 
 	// load the rest of the file into a buffer to estimate the size for allocation
 	string line;
-	vector<SSM_LINE> file_line_buffer;
+	vector<TsmLine> file_line_buffer;
 	while (getline(infile, line))
 		if (!line.empty())
-			file_line_buffer.push_back(SSM_LINE(line, shv));
+			file_line_buffer.push_back(TsmLine(line, shv));
 	cout << "Buffered file info." << endl;
 
 	// figure out the number of time points
 	// depending on type and N
 	switch (shv.filetype)
 	{
-	case SSM_FILETYPE::STAMPS:
+	case TSM_FILETYPE::STAMPS:
 		shv.N = file_line_buffer.size();
 		break;
-	case SSM_FILETYPE::PERIOD:
+	case TSM_FILETYPE::PERIOD:
 		// assumes the lines are ordered
 		// specify in docs
 		shv.N = max(shv.N, file_line_buffer.back().num+1);
@@ -182,12 +174,12 @@ int SSM::load(const string filename, double* time, double* data, size_t& N, int*
 	int* pos = new int[numdim];
 	switch (shv.filetype)
 	{
-	case SSM_FILETYPE::STAMPS:
+	case TSM_FILETYPE::STAMPS:
 		for (size_t i = 0; i < N; i++) {
 			time[i] = file_line_buffer[i].time;
 			for (size_t j = 0; j < file_line_buffer[i].size(); j++)
 			{
-				COMMA_SEPARATED_VIEW csv = file_line_buffer[i][j];
+				TsmCommaSeparatedView csv = file_line_buffer[i][j];
 				for (size_t i_dim = 0; i_dim < numdim; i_dim++)
 					pos[i_dim] = atoi(string(csv[i_dim]).c_str());
 
@@ -195,14 +187,14 @@ int SSM::load(const string filename, double* time, double* data, size_t& N, int*
 			}
 		}
 		break;
-	case SSM_FILETYPE::PERIOD:
+	case TSM_FILETYPE::PERIOD:
 		for (size_t i = 0; i < N; i++)
 			time[i] = shv.time_start + shv.time_period * i;
 
-		for (SSM_LINE& flb : file_line_buffer) {
+		for (TsmLine& flb : file_line_buffer) {
 			for (size_t j = 0; j < flb.size(); j++)
 			{
-				COMMA_SEPARATED_VIEW csv = flb[j];
+				TsmCommaSeparatedView csv = flb[j];
 				for (size_t k = 0; k < numdim; k++)
 					pos[k] = atoi(string(csv[k]).c_str());
 
@@ -214,24 +206,12 @@ int SSM::load(const string filename, double* time, double* data, size_t& N, int*
 	}
 	cout << "Transferred from buffer." << endl;
 
-	// TESTING
-	for (size_t i = 0; i < N; i++)
-	{
-		cout << to_string(time[i]) << ":";
-
-		for (size_t j = 0; j < M; j++)
-		{
-			cout << " " << to_string(data[i * M + j]);
-		}
-		cout << endl;
-	}
-
 	delete [] dim_mult;
 
 	return 0;
 }
 
-int SSM::process_header(ifstream& infile, SSM_HEADER_VARIABLES& shv)
+int Tsm::process_header(ifstream& infile, TsmHeaderVariables& shv)
 {
 	string line;
 	string var_name;
@@ -264,25 +244,25 @@ int SSM::process_header(ifstream& infile, SSM_HEADER_VARIABLES& shv)
 	return 0;
 }
 
-//-------------------------- SSM_HEADER_VARIABLES
-SSM_HEADER_VARIABLES::~SSM_HEADER_VARIABLES()
+//-------------------------- TsmHeaderVariables
+TsmHeaderVariables::~TsmHeaderVariables()
 {
 }
 
-bool SSM_HEADER_VARIABLES::is_valid()
+bool TsmHeaderVariables::is_valid()
 {
 	if (!dims || !numdim) {
 		cout << "Header dimensions variables are unset." << endl;
 		return false;
 	}
 
-	if (filetype == SSM_FILETYPE::NONETYPE) {
+	if (filetype == TSM_FILETYPE::NONETYPE) {
 		cout << "Header filetype (time) variable is unset." << endl;
 		return false;
 	}
 
 	// these produce weird, but technically working results
-	//if (filetype == SSM_FILETYPE::PERIOD) {
+	//if (filetype == TSM_FILETYPE::PERIOD) {
 	//	//if (N < 0) {
 	//	//	cout << "Header N variable is negative." << endl;
 	//	//	return false;
@@ -296,7 +276,7 @@ bool SSM_HEADER_VARIABLES::is_valid()
 	return true;
 }
 
-int SSM_HEADER_VARIABLES::set_var(std::string var_name, std::string str)
+int TsmHeaderVariables::set_var(std::string var_name, std::string str)
 {
 	if (auto search = m_setter_map.find(var_name); search != m_setter_map.end()) {
 		// found
@@ -311,9 +291,9 @@ int SSM_HEADER_VARIABLES::set_var(std::string var_name, std::string str)
 	}
 }
 
-int SSM_HEADER_VARIABLES::set_dims(std::string str)
+int TsmHeaderVariables::set_dims(std::string str)
 {
-	COMMA_SEPARATED_VIEW csv(str);
+	TsmCommaSeparatedView csv(str);
 	numdim = (int) csv.size();
 	if (numdim == 0) {
 		return -1;
@@ -326,39 +306,39 @@ int SSM_HEADER_VARIABLES::set_dims(std::string str)
 	return 0;
 }
 
-int SSM_HEADER_VARIABLES::set_default_value(std::string str)
+int TsmHeaderVariables::set_default_value(std::string str)
 {
 	// TODO shield atof throw
 	default_value = atof(str.c_str());
 	return 0;
 }
 
-int SSM_HEADER_VARIABLES::set_filetype(std::string str)
+int TsmHeaderVariables::set_filetype(std::string str)
 {
 	if (str == "stamps")
-		filetype = SSM_FILETYPE::STAMPS;
+		filetype = TSM_FILETYPE::STAMPS;
 	else if (str == "period") 
-		filetype = SSM_FILETYPE::PERIOD;
+		filetype = TSM_FILETYPE::PERIOD;
 	else 
 		return -1;
 	return 0;
 }
 
-int SSM_HEADER_VARIABLES::set_N(std::string str)
+int TsmHeaderVariables::set_N(std::string str)
 {
 	// TODO shield atoi
 	N = atoi(str.c_str());
 	return 0;
 }
 
-int SSM_HEADER_VARIABLES::set_time_start(std::string str)
+int TsmHeaderVariables::set_time_start(std::string str)
 {
 	// TODO shield atof
 	time_start = atof(str.c_str());
 	return 0;
 }
 
-int SSM_HEADER_VARIABLES::set_time_period(std::string str)
+int TsmHeaderVariables::set_time_period(std::string str)
 {
 	// TODO shield atof
 	time_period = atof(str.c_str());

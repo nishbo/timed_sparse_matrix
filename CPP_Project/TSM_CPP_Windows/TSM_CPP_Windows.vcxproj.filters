@@ -15,15 +15,15 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="SSM_CPP_Windows.cpp">
+    <ClCompile Include="TSM_CPP_Windows.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\cpp\SSM.cpp">
+    <ClCompile Include="..\..\cpp\tsm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\cpp\SSM.h">
+    <ClInclude Include="..\..\cpp\tsm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

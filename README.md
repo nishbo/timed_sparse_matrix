@@ -1,8 +1,6 @@
-# PROJECT
+# Timed Sparse Matrices
 
-Load sparse matrices and tensors with time stamps into a standard matrix in Python, MATLAB, and C++.
-
-Rename to 'tsm' - timed sparse matrix?
+Load timed sparse matrices and tensors into a lists, matrices, vectors, etc. in Python, MATLAB, and C++.
 
 
 ## I/O functions
@@ -33,7 +31,7 @@ Everything above 4 dashes (`----`) contains meta-information, below that line is
 
 `time` describes the type of representation of time values. 
 
-* `stamps` means that each line starts with a value for time. If the matrix is only consists of the default_values, then the line is empty after the time stamp. [Example](./example_stamps_file.ssm).
-* `period` means that the data was sampled regularly from a specific time with a specified period. Needs two additional definitions: `time_start` and `time_period`. The first column is then an index of the timestamp, and time is reconstructed from those definitions. Indexing start at 0. [Example](./example_period_file.ssm). NOT IMPLEMENTED.
+* `stamps` means that each line starts with a value for time. If the matrix is only consists of the default_values, then the line is empty after the time stamp. [Example](./example_stamps_file.tsm).
+* `period` means that the data was sampled regularly from a specific time with a specified period. Needs two additional definitions: `time_start` and `time_period`. The first column is then an index of the timestamp, and time is reconstructed from those definitions. Indexing start at 0. [Example](./example_period_file.tsm).
 
 `N` is an OPTIONAL parameter to define the maximum number of time points expected. For example, if in `time=period` the last time-index is 7, but `N=10`, the functions will return 2 additional timepoints filled with default_value.

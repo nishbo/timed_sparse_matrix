@@ -22,7 +22,7 @@
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{04284d86-62e7-4542-aa8d-41950d080f32}</ProjectGuid>
-    <RootNamespace>SSMCPPWindows</RootNamespace>
+    <RootNamespace>TsmCPPWindows</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -142,11 +142,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\cpp\SSM.cpp" />
-    <ClCompile Include="SSM_CPP_Windows.cpp" />
+    <ClCompile Include="..\..\cpp\tsm.cpp" />
+    <ClCompile Include="TSM_CPP_Windows.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\cpp\SSM.h" />
+    <ClInclude Include="..\..\cpp\tsm.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

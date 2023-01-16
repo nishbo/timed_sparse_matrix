@@ -1,11 +1,11 @@
-// SSM_CPP_Windows.cpp : This file contains the 'main' function. Program execution begins and ends there.
+// TSM_CPP_Windows.cpp : This file contains the 'main' function. Program execution begins and ends there.
 //
 
 #include <iostream>
 #include <string>
 #include <filesystem>  // C++17 - only needed for the interface
 
-#include "SSM.h"
+#include "tsm.h"
 
 using namespace std;
 namespace fs = std::filesystem;
@@ -22,13 +22,13 @@ int main()
 		exec_dir = current_path / ".." / ".." / "..";
 	}
 	else {
-		// simple_sparse_matrix\\CPP_Project\\SSM_CPP_Windows
+		// simple_sparse_matrix\\CPP_Project\\TSM_CPP_Windows
 		exec_dir = current_path / ".." / "..";
 	}
 
 	// filenames
-	fs::path stamps_filename_in = exec_dir / "example_stamps_file.ssm";
-	fs::path period_filename_in = exec_dir / "example_period_file.ssm";
+	fs::path stamps_filename_in = exec_dir / "example_stamps_file.tsm";
+	fs::path period_filename_in = exec_dir / "example_period_file.tsm";
 	if (!fs::exists(stamps_filename_in)) {
 		cout << "Input file " << stamps_filename_in << " does not exist." << endl;
 		return -1;
@@ -38,6 +38,7 @@ int main()
 		return -1;
 	}
 
+	// screw c-style, use vectors
 	double* time = nullptr;
 	double* data = nullptr;
 	size_t N = 0;
@@ -45,12 +46,14 @@ int main()
 	int numdim = 0, answ;
 
 	cout << "Loading " << stamps_filename_in << endl;
-	answ = SSM::load(stamps_filename_in.string(), time, data, N, dims, numdim);
+	answ = TSM::Tsm::load(stamps_filename_in.string(), time, data, N, dims, numdim);
 	cout << endl;
+	TSM::Tsm::print(time, data, N, dims, numdim);
 
 	cout << "Loading " << period_filename_in << endl;
-	answ = SSM::load(period_filename_in.string(), time, data, N, dims, numdim);
+	answ = TSM::Tsm::load(period_filename_in.string(), time, data, N, dims, numdim);
 	cout << endl;
+	TSM::Tsm::print(time, data, N, dims, numdim);
 
 	return answ;
 }

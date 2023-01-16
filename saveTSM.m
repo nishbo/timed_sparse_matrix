@@ -1,4 +1,4 @@
-function saveSSM(filename, data, time, varargin)
+function saveTSM(filename, data, time, varargin)
 
 % Get data information
 data_dim = size(data);
