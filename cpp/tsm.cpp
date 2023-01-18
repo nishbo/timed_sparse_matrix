@@ -68,43 +68,102 @@ std::size_t TsmLine::size() const
 }
 
 //------------------------------------------- Tsm class
-size_t Tsm::pos2ind(const int* pos, const size_t* dim_mult, const int numdim)
+size_t Tsm::pos2ind(const std::vector<size_t>& pos)
 {
+	// assumes same length of vectors
 	size_t answ = 0;
-	for (int i_dim = 0; i_dim < numdim; i_dim++)
+	for (size_t i_dim = 0; i_dim < pos.size(); i_dim++)
 		answ += dim_mult[i_dim] * pos[i_dim];
 	return answ;
 }
 
-size_t Tsm::calc_matrix_M(const int* dims, const int numdim)
+void Tsm::calc_params()
 {
-	size_t M = 1;
-	for (int i_dim = 0; i_dim < numdim; i_dim++)
+	dim_mult.clear();
+	dim_mult.resize(dims.size());
+	M = 1;
+	for (int i_dim = dims.size() - 1; i_dim >= 0; i_dim--) {
+		dim_mult[i_dim] = M;
 		M *= dims[i_dim];
-	return M;
+	}
 }
 
-void Tsm::print(const double* time, const double* data, const size_t& N, const int* dims, const int& numdim)
+double TSM::Tsm::get(const std::size_t i_time, const std::vector<std::size_t> pos)
 {
-	size_t M = calc_matrix_M(dims, numdim);
-	for (size_t i = 0; i < N; i++) {
-		cout << to_string(time[i]) << ":";
+	return data[i_time * M + pos2ind(pos)];
+}
 
-		for (size_t i_dim = 0; i_dim < numdim; i_dim++) {
-			for (size_t j = 0; j < dims[i_dim]; j++)
-				cout << " " << to_string(data[i * M + j]);
-			cout << endl;
-		}
+double TSM::Tsm::set(const std::size_t i_time, const std::vector<std::size_t> pos, const double value)
+{
+	return data[i_time * M + pos2ind(pos)] = value;
+}
+
+Tsm::Tsm(const std::string filename)
+{
+	int answ = load(filename);
+	// TODO also set state
+	if (answ < 0)
+		throw exception();
+}
+
+void Tsm::print()
+{
+	for (size_t i_time = 0; i_time < time.size(); i_time++) {
+		cout << to_string(time[i_time]) << ":";
+		for (size_t i_el = 0; i_el < M; i_el++)
+			cout << " " << to_string(data[i_time * M + i_el]);
 		cout << endl;
 	}
 }
 
-int Tsm::load(const string filename, double* time, double* data, size_t& N, int* dims, int& numdim)
+int TSM::Tsm::save_stamps(const std::string filename, const double default_value)
+{
+	// TODO create header
+	// TODO output lines
+	return 0;
+}
+
+std::vector<std::vector<double>> TSM::Tsm::get_vectors()
+{
+	// check
+	if (dims.size() != 1)
+		throw exception(); // TODO meaning
+
+	// fill
+	std::vector<std::vector<double>> answ;
+	for (size_t i_time = 0; i_time < time.size(); i_time++)
+		answ.push_back(std::vector<double>(
+			data.begin() + i_time * M, 
+			data.begin() + (i_time + 1) * M));
+	
+	return answ;
+}
+
+std::vector<std::vector<std::vector<double>>> TSM::Tsm::get_matrices()
+{
+	// check
+	if (dims.size() != 2)
+		throw exception(); // TODO meaning
+
+	// fill
+	std::vector<std::vector<std::vector<double>>> answ(N);
+	size_t begin, end;
+	for (size_t i_time = 0; i_time < time.size(); i_time++) {
+		for (size_t i = 0; i < dims[0]; i++) {
+			begin = i_time * M + i * dims[1];
+			end = i_time * M + (i + 1) * dims[1];
+			answ[i_time].push_back(std::vector<double>(data.begin() + begin, data.begin() + end));
+		}
+	}
+	return answ;
+}
+
+int Tsm::load(const std::string filename)
 {
 	// set to null
-	time = nullptr;
-	data = nullptr;
-	dims = nullptr;
+	time.clear();
+	data.clear();
+	dims.clear();
 
 	// open file
 	std::ifstream infile(filename);
@@ -117,16 +176,11 @@ int Tsm::load(const string filename, double* time, double* data, size_t& N, int*
 	if (Tsm::process_header(infile, shv) < 0)
 		return -2;
 	dims = shv.dims;
-	numdim = shv.numdim;
+	int numdim = (int) dims.size();
 	cout << "Processed header." << endl;
 
-	// total number of elements per tensor
-	size_t* dim_mult = new size_t[numdim];
-	size_t M = 1;
-	for (int i_dim = 0; i_dim < numdim; i_dim++) {
-		dim_mult[numdim - 1 - i_dim] = M;
-		M *= dims[i_dim];
-	}
+	// tensor-associated parameters
+	calc_params();
 	cout << "Calculated dimensions." << endl;
 
 	// load the rest of the file into a buffer to estimate the size for allocation
@@ -150,63 +204,55 @@ int Tsm::load(const string filename, double* time, double* data, size_t& N, int*
 		shv.N = max(shv.N, file_line_buffer.back().num+1);
 		break;
 	default:
-		// not implemented
-		// TODO meaningful throw
-		throw(exception());
+		return -3;
 		break;
 	}
-	N = shv.N;
 
+	// handle empty file
+	N = shv.N;
 	if (N == 0)
 		return 1;  // empty
 
 	// allocate
-	time = new double[N];
-	data = new double[N * M];
-
-	// fill
-	// sorry if you are fixing overflow here
-	for (size_t i = 0; i < M * N; i++)
-		data[i] = shv.default_value;
+	time.resize(N);
+	data.resize(N * M, shv.default_value);
 	cout << "Allocated memory." << endl;
 
 	// transfer from buffer
-	int* pos = new int[numdim];
+	vector<size_t> pos(numdim);
 	switch (shv.filetype)
 	{
 	case TSM_FILETYPE::STAMPS:
-		for (size_t i = 0; i < N; i++) {
-			time[i] = file_line_buffer[i].time;
-			for (size_t j = 0; j < file_line_buffer[i].size(); j++)
+		for (size_t i_time = 0; i_time < N; i_time++) {
+			time[i_time] = file_line_buffer[i_time].time;
+			for (size_t j = 0; j < file_line_buffer[i_time].size(); j++)
 			{
-				TsmCommaSeparatedView csv = file_line_buffer[i][j];
+				TsmCommaSeparatedView csv = file_line_buffer[i_time][j];
 				for (size_t i_dim = 0; i_dim < numdim; i_dim++)
 					pos[i_dim] = atoi(string(csv[i_dim]).c_str());
-
-				data[i * M + pos2ind(pos, dim_mult, numdim)] = atof(string(csv[numdim]).c_str());
+				set(i_time, pos, atof(string(csv[numdim]).c_str()));
 			}
 		}
 		break;
+
 	case TSM_FILETYPE::PERIOD:
+		// fill out all times
 		for (size_t i = 0; i < N; i++)
 			time[i] = shv.time_start + shv.time_period * i;
 
+		// fill the corresponding values
 		for (TsmLine& flb : file_line_buffer) {
 			for (size_t j = 0; j < flb.size(); j++)
 			{
 				TsmCommaSeparatedView csv = flb[j];
 				for (size_t k = 0; k < numdim; k++)
 					pos[k] = atoi(string(csv[k]).c_str());
-
-				data[flb.num * M + pos2ind(pos, dim_mult, numdim)] = atof(string(csv[numdim]).c_str());
+				set(flb.num, pos, atof(string(csv[numdim]).c_str()));
 			}
 		}
-
 		break;
 	}
 	cout << "Transferred from buffer." << endl;
-
-	delete [] dim_mult;
 
 	return 0;
 }
@@ -251,7 +297,7 @@ TsmHeaderVariables::~TsmHeaderVariables()
 
 bool TsmHeaderVariables::is_valid()
 {
-	if (!dims || !numdim) {
+	if (dims.empty()) {
 		cout << "Header dimensions variables are unset." << endl;
 		return false;
 	}
@@ -294,14 +340,13 @@ int TsmHeaderVariables::set_var(std::string var_name, std::string str)
 int TsmHeaderVariables::set_dims(std::string str)
 {
 	TsmCommaSeparatedView csv(str);
-	numdim = (int) csv.size();
-	if (numdim == 0) {
+	dims.clear();
+	if (csv.size() == 0) {
 		return -1;
 	}
 
-	dims = new int[numdim];
-	for (size_t i_dim = 0; i_dim < numdim; i_dim++)
-		dims[i_dim] = atoi(string(csv[i_dim]).c_str());
+	for (size_t i_dim = 0; i_dim < csv.size(); i_dim++)
+		dims.push_back(atoi(string(csv[i_dim]).c_str()));
 
 	return 0;
 }

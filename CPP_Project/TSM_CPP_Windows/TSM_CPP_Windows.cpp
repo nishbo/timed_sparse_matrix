@@ -38,22 +38,50 @@ int main()
 		return -1;
 	}
 
-	// screw c-style, use vectors
-	double* time = nullptr;
-	double* data = nullptr;
-	size_t N = 0;
-	int* dims = nullptr;
-	int numdim = 0, answ;
+
+	std::vector<double> time;
+	std::vector<std::vector<std::vector<double>>> m;
+	vector<size_t> dims;
 
 	cout << "Loading " << stamps_filename_in << endl;
-	answ = TSM::Tsm::load(stamps_filename_in.string(), time, data, N, dims, numdim);
+	TSM::Tsm tsm_stamps(stamps_filename_in.string());
 	cout << endl;
-	TSM::Tsm::print(time, data, N, dims, numdim);
+	tsm_stamps.print();
+	cout << "Extracting matrices for print:" << endl;
+	time = tsm_stamps.time;
+	dims = tsm_stamps.dims;
+	m = tsm_stamps.get_matrices();
+	for (size_t i_time = 0; i_time < time.size(); i_time++) {
+		cout << time[i_time] << ":" << endl;
+		for (size_t i_row = 0; i_row < dims[0]; i_row++) {
+			cout << "\t";
+			for (size_t i_col = 0; i_col < dims[1]; i_col++) {
+				cout << " " << m[i_time][i_row][i_col];
+			}
+			cout << endl;
+		}
+	}
+	cout << endl;
 
 	cout << "Loading " << period_filename_in << endl;
-	answ = TSM::Tsm::load(period_filename_in.string(), time, data, N, dims, numdim);
+	TSM::Tsm tsm_period(period_filename_in.string());
 	cout << endl;
-	TSM::Tsm::print(time, data, N, dims, numdim);
+	tsm_period.print();
+	cout << "Extracting matrices for print:" << endl;
+	time = tsm_period.time;
+	dims = tsm_period.dims;
+	m = tsm_period.get_matrices();
+	for (size_t i_time = 0; i_time < time.size(); i_time++) {
+		cout << time[i_time] << ":" << endl;
+		for (size_t i_row = 0; i_row < dims[0]; i_row++) {
+			cout << "\t";
+			for (size_t i_col = 0; i_col < dims[1]; i_col++) {
+				cout << " " << m[i_time][i_row][i_col];
+			}
+			cout << endl;
+		}
+	}
+	cout << endl;
 
-	return answ;
+	return 0;
 }

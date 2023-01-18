@@ -21,8 +21,7 @@ namespace TSM {
 	public:
 		~TsmHeaderVariables();
 
-		int* dims = nullptr;
-		int numdim = 0;
+		std::vector<size_t> dims;
 
 		double default_value = 0;  // 0 by default
 
@@ -85,27 +84,46 @@ namespace TSM {
 
 		TsmCommaSeparatedView operator[](std::size_t index) const;
 		std::size_t size() const;
-	private:
-
 	};
 
 
 	class Tsm
 	{
 	public:
+		// data -- take it from here?
+		std::vector<double> time;
+		std::vector<double> data;
+		std::vector<std::size_t> dims;
+
+		// elementwise access
+		double get(const std::size_t i_time, const std::vector<std::size_t> pos);
+		double set(const std::size_t i_time, const std::vector<std::size_t> pos, const double value);
+
+		// constructors
 		Tsm() = delete;
+		Tsm(const std::string filename);
+		Tsm(std::vector<double>& time, std::vector<double>& data, std::vector<std::size_t>& dims);
 
-		static void print(const double* time, const double* data, const size_t& N, const int* dims, const int& numdim);
+		void print();
+		int save_stamps(const std::string filename, const double default_value);
+		int save_period(const std::string filename, const double default_value);
 
-		static int load(const std::string filename, double* time, double* data, size_t& N, int* dims, int& numdim);
-		static int save(const std::string filename, const double* time, const double* data, const int* dims, const int numdim);
-
-		// TODO make 2D and 1D simplified APIs
+		// TODO make 1D and 2D simplified APIs
+		std::vector<std::vector<double>> get_vectors();
+		std::vector< std::vector<std::vector<double>>> get_matrices();
 
 	private:
-		static int process_header(std::ifstream& infile, TsmHeaderVariables& shv);
-		static size_t pos2ind(const int* pos, const size_t* dim_mult, const int numdim);
-		static size_t calc_matrix_M(const int* dims, const int numdim);
+		// reading
+		int load(const std::string filename);
+		int process_header(std::ifstream& infile, TsmHeaderVariables& shv);
+
+		// accessing data - do not change after construction
+		std::vector<std::size_t> dim_mult;
+		std::size_t M;
+		std::size_t N;
+		size_t pos2ind(const std::vector<size_t>& pos);
+		// calculates dim_mult for array navigaion and M
+		void calc_params();
 	};
 
 }
