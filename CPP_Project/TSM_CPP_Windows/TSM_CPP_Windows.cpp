@@ -10,6 +10,9 @@
 using namespace std;
 namespace fs = std::filesystem;
 
+// TODO make 1d and 3d examples
+
+
 int main()
 {
 	// current path
@@ -29,6 +32,8 @@ int main()
 	// filenames
 	fs::path stamps_filename_in = exec_dir / "example_stamps_file.tsm";
 	fs::path period_filename_in = exec_dir / "example_period_file.tsm";
+	fs::path stamps_filename_ou = exec_dir / "example_stamps_file_o.tsm";
+	fs::path period_filename_ou = exec_dir / "example_period_file_o.tsm";
 	if (!fs::exists(stamps_filename_in)) {
 		cout << "Input file " << stamps_filename_in << " does not exist." << endl;
 		return -1;
@@ -62,6 +67,7 @@ int main()
 		}
 	}
 	cout << endl;
+	tsm_stamps.save_stamps(stamps_filename_ou.string());
 
 	cout << "Loading " << period_filename_in << endl;
 	TSM::Tsm tsm_period(period_filename_in.string());
@@ -82,6 +88,7 @@ int main()
 		}
 	}
 	cout << endl;
+	tsm_period.save_period(period_filename_ou.string());
 
 	return 0;
 }

@@ -4,6 +4,7 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <map>
 
 namespace TSM {
@@ -39,6 +40,10 @@ namespace TSM {
 		// sets variable
 		int set_var(std::string var_name, std::string str);
 
+		// without the ---- separator but with an empty line
+		// is not required to be equivalent with an input line
+		std::string get_string();
+
 	private:
 		int set_dims(std::string);
 		int set_default_value(std::string);
@@ -64,26 +69,26 @@ namespace TSM {
 		TsmCommaSeparatedView() = delete;
 		TsmCommaSeparatedView(std::string str, char separator = ',');
 
-		std::string_view operator[](std::size_t index) const;
-		std::size_t size() const;
+		std::string_view operator[](size_t index) const;
+		size_t size() const;
 	private:
 		std::string m_str;
-		std::vector<std::size_t> m_data;
+		std::vector<size_t> m_data;
 	};
 
 	class TsmLine
 	{
 	public:
 		TsmLine() = delete;
-		TsmLine(std::size_t _num, TsmHeaderVariables& shv);
+		TsmLine(size_t _num, TsmHeaderVariables& shv);
 		TsmLine(std::string str, TsmHeaderVariables& shv);
 
-		std::size_t num = -1;
+		size_t num = -1;
 		double time = -1;
 		TsmCommaSeparatedView line;
 
-		TsmCommaSeparatedView operator[](std::size_t index) const;
-		std::size_t size() const;
+		TsmCommaSeparatedView operator[](size_t index) const;
+		size_t size() const;
 	};
 
 
@@ -93,37 +98,45 @@ namespace TSM {
 		// data -- take it from here?
 		std::vector<double> time;
 		std::vector<double> data;
-		std::vector<std::size_t> dims;
+		std::vector<size_t> dims;
 
 		// elementwise access
-		double get(const std::size_t i_time, const std::vector<std::size_t> pos);
-		double set(const std::size_t i_time, const std::vector<std::size_t> pos, const double value);
+		double get(const size_t i_time, const std::vector<size_t> pos);
+		double set(const size_t i_time, const std::vector<size_t> pos, const double value);
 
 		// constructors
 		Tsm() = delete;
 		Tsm(const std::string filename);
-		Tsm(std::vector<double>& time, std::vector<double>& data, std::vector<std::size_t>& dims);
+		Tsm(std::vector<double>& time, std::vector<double>& data, std::vector<size_t>& dims);
 
 		void print();
-		int save_stamps(const std::string filename, const double default_value);
-		int save_period(const std::string filename, const double default_value);
+		// if file exists, it is overwritten
+		int save_stamps(const std::string filename, const double default_value = 0.);
+		int save_period(const std::string filename, const double default_value = 0.);
 
-		// TODO make 1D and 2D simplified APIs
+		// make 1D and 2D simplified APIs
 		std::vector<std::vector<double>> get_vectors();
 		std::vector< std::vector<std::vector<double>>> get_matrices();
 
+		// slightly better formatting of double to str
+		static std::string d_to_string(double val);
 	private:
 		// reading
 		int load(const std::string filename);
 		int process_header(std::ifstream& infile, TsmHeaderVariables& shv);
 
 		// accessing data - do not change after construction
-		std::vector<std::size_t> dim_mult;
-		std::size_t M;
-		std::size_t N;
+		std::vector<size_t> dim_mult;
+		size_t M;
+		size_t N;
+		// return in [0; M)
 		size_t pos2ind(const std::vector<size_t>& pos);
-		// calculates dim_mult for array navigaion and M
+		// ind in [0; M)
+		std::vector<size_t> ind2pos(const size_t ind);
+		// calculates dim_mult for array navigaion and M - called during construction
 		void calc_params();
+		static std::string pos2str(const std::vector<size_t>& pos);
+
 	};
 
 }
