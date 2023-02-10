@@ -107,7 +107,9 @@ namespace TSM {
 		// constructors
 		Tsm() = delete;
 		Tsm(const std::string filename);
-		Tsm(std::vector<double>& time, std::vector<double>& data, std::vector<size_t>& dims);
+		Tsm(const std::vector<double> time, const std::vector<double> data, const std::vector<size_t> dims);
+		Tsm(const std::vector<double> time, const std::vector<std::vector<double>> vecs);
+		Tsm(const std::vector<double> time, const std::vector<std::vector<std::vector<double>>> matrices);
 
 		void print();
 		// if file exists, it is overwritten

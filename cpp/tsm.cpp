@@ -15,6 +15,16 @@ almost_equal(T x, T y, int ulp)
 		|| std::fabs(x - y) < std::numeric_limits<T>::min();
 }
 
+// @https://stackoverflow.com/questions/38874605/generic-method-for-flattening-2d-vectors
+template<typename T>
+std::vector<T> flatten(const std::vector<std::vector<T>>& orig)
+{
+	std::vector<T> ret;
+	for (const auto& v : orig)
+		ret.insert(ret.end(), v.begin(), v.end());
+	return ret;
+}
+
 //------------------------------------------- COMMA_SEPARATED_VIEW
 TsmCommaSeparatedView::TsmCommaSeparatedView(std::string str, char separator) {
 	// TODO check for str len 0
@@ -105,6 +115,7 @@ std::vector<size_t> TSM::Tsm::ind2pos(const size_t ind)
 
 void Tsm::calc_params()
 {
+	N = time.size();
 	dim_mult.clear();
 	dim_mult.resize(dims.size());
 	M = 1;
@@ -149,6 +160,32 @@ Tsm::Tsm(const std::string filename)
 	// TODO also set state
 	if (answ < 0)
 		throw exception();
+}
+
+TSM::Tsm::Tsm(const std::vector<double> time, const std::vector<double> data, const std::vector<size_t> dims)
+{
+	// TODO validity/consistency checks?
+	this->time = time;
+	this->data = data;
+	this->dims = dims;
+	calc_params();
+}
+
+TSM::Tsm::Tsm(const std::vector<double> time, const std::vector<std::vector<double>> vecs)
+{
+	this->time = time;
+	this->data = flatten(vecs);
+	this->dims = vector<size_t>{ vecs[0].size() };
+	calc_params();
+}
+
+
+TSM::Tsm::Tsm(const std::vector<double> time, const std::vector<std::vector<std::vector<double>>> matrices)
+{
+	this->time = time;
+	this->data = flatten(flatten(matrices));
+	this->dims = vector<size_t>{ matrices[0].size(), matrices[0][0].size() };
+	calc_params();
 }
 
 void Tsm::print()
@@ -251,6 +288,7 @@ int TSM::Tsm::save_period(const std::string filename, const double default_value
 	}
 	oufile << data_s;
 	oufile.close();
+
 	return 0;
 }
 

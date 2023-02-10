@@ -29,11 +29,15 @@ int main()
 		exec_dir = current_path / ".." / "..";
 	}
 
+	int answ;
+
 	// filenames
 	fs::path stamps_filename_in = exec_dir / "example_stamps_file.tsm";
 	fs::path period_filename_in = exec_dir / "example_period_file.tsm";
 	fs::path stamps_filename_ou = exec_dir / "example_stamps_file_o.tsm";
 	fs::path period_filename_ou = exec_dir / "example_period_file_o.tsm";
+	fs::path stamps_filename_ou2 = exec_dir / "example_stamps_file_o2.tsm";
+	fs::path period_filename_ou2 = exec_dir / "example_period_file_o2.tsm";
 	if (!fs::exists(stamps_filename_in)) {
 		cout << "Input file " << stamps_filename_in << " does not exist." << endl;
 		return -1;
@@ -42,7 +46,6 @@ int main()
 		cout << "Input file " << period_filename_in << " does not exist." << endl;
 		return -1;
 	}
-
 
 	std::vector<double> time;
 	std::vector<std::vector<std::vector<double>>> m;
@@ -67,7 +70,17 @@ int main()
 		}
 	}
 	cout << endl;
-	tsm_stamps.save_stamps(stamps_filename_ou.string());
+
+	// export directly from loaded structure
+	answ = tsm_stamps.save_stamps(stamps_filename_ou.string());
+	if (answ < 0)
+		cout << "Could not export to " << stamps_filename_ou.string() << ". Error: " << to_string(answ) << endl;
+
+	// export from programmatically generated data
+	TSM::Tsm tsm_stamps_2(time, m);
+	answ = tsm_stamps_2.save_stamps(stamps_filename_ou2.string());
+	if (answ < 0)
+		cout << "Could not export to " << stamps_filename_ou2.string() << ". Error: " << to_string(answ) << endl;
 
 	cout << "Loading " << period_filename_in << endl;
 	TSM::Tsm tsm_period(period_filename_in.string());
@@ -88,7 +101,17 @@ int main()
 		}
 	}
 	cout << endl;
-	tsm_period.save_period(period_filename_ou.string());
+
+	// export directly from loaded structure
+	answ = tsm_period.save_period(period_filename_ou.string());
+	if (answ < 0)
+		cout << "Could not export to " << period_filename_ou.string() << ". Error: " << to_string(answ) << endl;
+
+	// export from programmatically generated data
+	TSM::Tsm tsm_period_2(time, m);
+	answ = tsm_period_2.save_period(period_filename_ou2.string());
+	if (answ < 0)
+		cout << "Could not export to " << period_filename_ou2.string() << ". Error: " << to_string(answ) << endl;
 
 	return 0;
 }
