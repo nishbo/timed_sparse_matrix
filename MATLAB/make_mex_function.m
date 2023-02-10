@@ -1,0 +1,1 @@
+mex COMPFLAGS='$COMPFLAGS -std:c++17' tsm_matlab.cpp -I..\cpp\ -output tsm.mex
