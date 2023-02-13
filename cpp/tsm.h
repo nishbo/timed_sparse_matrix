@@ -115,6 +115,7 @@ namespace TSM {
 		// if file exists, it is overwritten
 		int save_stamps(const std::string filename, const double default_value = 0.);
 		int save_period(const std::string filename, const double default_value = 0.);
+		int save(const std::string filename, const std::string type, const double default_value = 0.);
 
 		// make 1D and 2D simplified APIs
 		std::vector<std::vector<double>> get_vectors();

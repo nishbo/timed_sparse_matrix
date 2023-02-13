@@ -213,7 +213,7 @@ int TSM::Tsm::save_stamps(const std::string filename, const double default_value
 	std::ofstream oufile(filename);
 	if (!oufile.is_open())
 		return -1;
-	cout << "Opened file." << endl;
+	// cout << "Opened file." << endl;
 	oufile << header;
 
 	// generate data lines
@@ -264,7 +264,8 @@ int TSM::Tsm::save_period(const std::string filename, const double default_value
 	std::ofstream oufile(filename);
 	if (!oufile.is_open())
 		return -1;
-	cout << "Opened file." << endl;
+	// TODO add debug option
+    //cout << "Opened file." << endl;
 	oufile << header;
 
 	// generate data lines
@@ -290,6 +291,16 @@ int TSM::Tsm::save_period(const std::string filename, const double default_value
 	oufile.close();
 
 	return 0;
+}
+
+int TSM::Tsm::save(const std::string filename, const std::string type, const double default_value)
+{
+	if (type == "period")
+		return save_period(filename, default_value);
+	if (type == "stamps")
+		return save_stamps(filename, default_value);
+	// TODO meaning
+	throw exception();
 }
 
 std::vector<std::vector<double>> TSM::Tsm::get_vectors()
@@ -338,7 +349,7 @@ int Tsm::load(const std::string filename)
 	std::ifstream infile(filename);
 	if (!infile.is_open())
 		return -1;
-	cout << "Opened file." << endl;
+	// cout << "Opened file." << endl;
 
 	// process header
 	TsmHeaderVariables shv;
@@ -346,11 +357,11 @@ int Tsm::load(const std::string filename)
 		return -2;
 	dims = shv.dims;
 	int numdim = (int) dims.size();
-	cout << "Processed header." << endl;
+	// cout << "Processed header." << endl;
 
 	// tensor-associated parameters
 	calc_params();
-	cout << "Calculated dimensions." << endl;
+	// cout << "Calculated dimensions." << endl;
 
 	// load the rest of the file into a buffer to estimate the size for allocation
 	string line;
@@ -358,7 +369,7 @@ int Tsm::load(const std::string filename)
 	while (getline(infile, line))
 		if (!line.empty())
 			file_line_buffer.push_back(TsmLine(line, shv));
-	cout << "Buffered file info." << endl;
+	// cout << "Buffered file info." << endl;
 
 	// figure out the number of time points
 	// depending on type and N
@@ -385,7 +396,7 @@ int Tsm::load(const std::string filename)
 	// allocate
 	time.resize(N);
 	data.resize(N * M, shv.default_value);
-	cout << "Allocated memory." << endl;
+	// cout << "Allocated memory." << endl;
 
 	// transfer from buffer
 	vector<size_t> pos(numdim);
@@ -421,7 +432,7 @@ int Tsm::load(const std::string filename)
 		}
 		break;
 	}
-	cout << "Transferred from buffer." << endl;
+	// cout << "Transferred from buffer." << endl;
 
 	return 0;
 }
@@ -516,7 +527,7 @@ std::string TSM::TsmHeaderVariables::get_string()
 	answ += "\n";
 	answ += "default_value=" + Tsm::d_to_string(default_value) + "\n";
 
-	// type-dependant
+	// type-dependent
 	switch (filetype)
 	{
 	case TSM::TSM_FILETYPE::STAMPS:
