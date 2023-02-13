@@ -128,9 +128,10 @@ namespace TSM {
 		int process_header(std::ifstream& infile, TsmHeaderVariables& shv);
 
 		// accessing data - do not change after construction
+		// products
+		size_t M;  // mult of all dims
+		size_t N;  // len of time
 		std::vector<size_t> dim_mult;
-		size_t M;
-		size_t N;
 		// return in [0; M)
 		size_t pos2ind(const std::vector<size_t>& pos);
 		// ind in [0; M)
