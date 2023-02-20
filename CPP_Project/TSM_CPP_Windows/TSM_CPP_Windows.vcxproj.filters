@@ -18,12 +18,12 @@
     <ClCompile Include="TSM_CPP_Windows.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\cpp\tsm.cpp">
+    <ClCompile Include="..\..\src\tsm.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\cpp\tsm.h">
+    <ClInclude Include="..\..\src\tsm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

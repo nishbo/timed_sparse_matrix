@@ -3,8 +3,8 @@
 *
 * Usage : from MATLAB
 *     Loading:
-*         >> times, tensor_data, dims = tsm('load', filename);
-*         >> times, formatted_tensors = tsm_load(filename); -- MATLAB wrapper
+*         >> [times, tensor_data, dims] = tsm('load', filename);
+*         >> [times, formatted_tensors] = tsm_load(filename); -- MATLAB wrapper
 *     Saving:
 *         >> tsm('save', filename, times, tensor_data, dims);
 *         >> tsm_save(filename, times, formatted_tensors); -- MATLAB wrapper
@@ -24,8 +24,8 @@ const string HELP (
 "\nUsage :\n"
 "\ttsm('help'), tsm('h'), or just tsm displays this message;\n"
 "\tLoading:\n"
-"\t\t>> times, tensor_data, dims = tsm('load', filename);\n"
-"\t\t>> times, formatted_tensors = tsm_load(filename); -- MATLAB wrapper\n"
+"\t\t>> [times, tensor_data, dims] = tsm('load', filename);\n"
+"\t\t>> [times, formatted_tensors] = tsm_load(filename); -- MATLAB wrapper\n"
 "\tSaving:\n"
 "\t\t>> tsm('save', filename, type, times, tensor_data, dims, default_value=0.);\n"
 "\t\t>> tsm_save(filename, type, times, formatted_tensors, default_value); -- MATLAB wrapper\n"
