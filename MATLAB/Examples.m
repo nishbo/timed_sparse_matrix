@@ -1,3 +1,5 @@
+% RUN AFTER INSTALLATION
+
 [times, formatted_tensors] = tsm_load('../example_period_file.tsm');
 tsm_save('../example_period_file_mo.tsm', 'period', times, formatted_tensors, 0.)
 
