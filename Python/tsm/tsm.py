@@ -1,4 +1,10 @@
-#!python3.7
+#!python3
+# -*- coding: utf-8 -*-
+"""
+Timed Sparse Matrices
+Copyright 2023 Anton Sobinov
+https://github.com/nishbo/timed_sparse_matrix
+"""
 import os
 import ctypes
 import functools
@@ -6,8 +12,7 @@ import functools
 import numpy as np
 
 
-tsm_dll = ctypes.cdll.LoadLibrary(os.path.join(
-    '..', 'DLL', 'TSMDLL', 'x64', 'Release', 'TSMDLL.dll'))
+tsm_dll = ctypes.cdll.LoadLibrary(os.path.join(os.path.dirname(__file__), 'TSMDLL.dll'))
 
 
 def ctypes2np(parr, N):
@@ -36,6 +41,7 @@ def _load_low(filename):
     M = int(np.prod(dims))
     tensor_data = ctypes2np(ptensor_data, M * N)
 
+    # for some reason, crashes the process
     # tsm_dll.tsm_free(
     #     ctypes.pointer(ptimes),
     #     ctypes.pointer(ptensor_data),
@@ -85,9 +91,8 @@ def save(filename, type, times, formatted_tensor_data, default_value=0.):
     _save_low(filename, type, times, N, tensor_data, dims, M, default_value=default_value)
 
 
-
-
 if __name__ == '__main__':
+    # proto example
     times, formatted_tensor_data = load(os.path.join('..', 'example_period_file.tsm'))
     print(times)
     print(formatted_tensor_data)

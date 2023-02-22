@@ -151,6 +151,11 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
     </Link>
+    <PostBuildEvent>
+      <Command>copy /B /V /Y "$(OutDir)*.dll" "$(ProjectDir)..\..\" &gt; NUL
+copy /B /V /Y "$(OutDir)*.lib" "$(ProjectDir)..\..\" &gt; NUL
+copy /B /V /Y "$(OutDir)*.exp" "$(ProjectDir)..\..\" &gt; NUL</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\tsm.h" />
