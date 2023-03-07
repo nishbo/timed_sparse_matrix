@@ -300,7 +300,7 @@ int TSM::Tsm::save(const std::string filename, const std::string type, const dou
 	if (type == "stamps")
 		return save_stamps(filename, default_value);
 	// TODO meaning
-	throw exception();
+	return -10;
 }
 
 std::vector<std::vector<double>> TSM::Tsm::get_vectors()
@@ -336,6 +336,27 @@ std::vector<std::vector<std::vector<double>>> TSM::Tsm::get_matrices()
 		}
 	}
 	return answ;
+}
+
+int TSM::Tsm::get_matrices_ip(std::vector<std::vector<std::vector<double>>>& m)
+{
+	m.clear();
+
+	// check
+	if (dims.size() != 2)
+		throw exception(); // TODO meaning
+
+	// fill
+	m.resize(N);
+	size_t begin, end;
+	for (size_t i_time = 0; i_time < time.size(); i_time++) {
+		for (size_t i = 0; i < dims[0]; i++) {
+			begin = i_time * M + i * dims[1];
+			end = i_time * M + (i + 1) * dims[1];
+			m[i_time].push_back(std::vector<double>(data.begin() + begin, data.begin() + end));
+		}
+	}
+	return 0;
 }
 
 int Tsm::load(const std::string filename)

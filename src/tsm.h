@@ -120,6 +120,7 @@ namespace TSM {
 		// make 1D and 2D simplified APIs
 		std::vector<std::vector<double>> get_vectors();
 		std::vector< std::vector<std::vector<double>>> get_matrices();
+		int get_matrices_ip(std::vector< std::vector<std::vector<double>>>& m);
 
 		// slightly better formatting of double to str
 		static std::string d_to_string(double val);
