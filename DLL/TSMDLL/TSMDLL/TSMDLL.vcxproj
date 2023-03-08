@@ -154,7 +154,8 @@
     <PostBuildEvent>
       <Command>copy /B /V /Y "$(OutDir)*.dll" "$(ProjectDir)..\..\" &gt; NUL
 copy /B /V /Y "$(OutDir)*.lib" "$(ProjectDir)..\..\" &gt; NUL
-copy /B /V /Y "$(OutDir)*.exp" "$(ProjectDir)..\..\" &gt; NUL</Command>
+copy /B /V /Y "$(OutDir)*.exp" "$(ProjectDir)..\..\" &gt; NUL
+copy /B /V /Y "$(OutDir)*.dll" "$(ProjectDir)..\..\..\Python\tsm\" &gt; NUL</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

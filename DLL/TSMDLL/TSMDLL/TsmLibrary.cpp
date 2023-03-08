@@ -110,6 +110,8 @@ void tsm_save(
         data[i] = tensor_data[i];
 
     TSM::Tsm tsm(time, data, _dims);
-    tsm.save(filename, type, default_value);
+    int answ = tsm.save(filename, type, default_value);
+    if (answ < 0)
+        cout << "Problems saving file. Code: " << to_string(answ) << "." << endl;
 
 }

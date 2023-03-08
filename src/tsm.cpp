@@ -15,6 +15,18 @@ almost_equal(T x, T y, int ulp)
 		|| std::fabs(x - y) < std::numeric_limits<T>::min();
 }
 
+// weaker version
+template<class T>
+typename std::enable_if<!std::numeric_limits<T>::is_integer, bool>::type
+weak_almost_equal(T x, T y, int ulp)
+{
+	// the machine epsilon has to be scaled to the magnitude of the values used
+	// and multiplied by the desired precision in ULPs (units in the last place)
+	return std::fabs(x - y) <= std::sqrt(std::numeric_limits<T>::epsilon()) * std::fabs(x + y) * ulp
+		// unless the result is subnormal
+		|| std::fabs(x - y) < std::numeric_limits<T>::min();
+}
+
 // @https://stackoverflow.com/questions/38874605/generic-method-for-flattening-2d-vectors
 template<typename T>
 std::vector<T> flatten(const std::vector<std::vector<T>>& orig)
@@ -237,6 +249,7 @@ int TSM::Tsm::save_stamps(const std::string filename, const double default_value
 
 int TSM::Tsm::save_period(const std::string filename, const double default_value)
 {
+
 	// create header
 	TsmHeaderVariables thv;
 	thv.dims = dims;
@@ -252,7 +265,8 @@ int TSM::Tsm::save_period(const std::string filename, const double default_value
 	for (size_t i = 1; i < time.size(); i++)
 	{
 		dt = time[i] - time[i - 1];
-		if ((dt < 0) || !almost_equal(dt, thv.time_period, 2)) {
+		if (!weak_almost_equal(dt, thv.time_period, 2)) {
+//			cout << time[i - 1] << " " << time[i] << " " << dt << " " << thv.time_period << " " << fabs(dt - thv.time_period) << " " << sqrt(numeric_limits<double>::epsilon()) * std::fabs(dt + thv.time_period) * 2 << " " << std::numeric_limits<double>::min() << endl;
 			return -2;  // on one or more time points the dt is not equal to expected
 		}
 	}

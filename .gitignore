@@ -38,7 +38,7 @@ dist
 x64/
 x86/
 bld/
-[Bb]in/
+# [Bb]in/  #MATLAB bin 
 [Oo]bj/
 [Ll]og/
 
