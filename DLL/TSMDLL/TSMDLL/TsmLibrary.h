@@ -1,4 +1,25 @@
-// TsmLibrary.h - Contains declarations of exported tsm functions
+/*
+* Timed Sparse Matrices
+* Copyright (C) 2023  Anton Sobinov
+* https://github.com/nishbo/timed_sparse_matrix
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*
+*
+* Declarations of exported TSM functions.
+*
+*/
 #pragma once
 
 #ifdef TSMDLL_EXPORTS
@@ -7,12 +28,8 @@
 #define TSMLIBRARY_API __declspec(dllimport)
 #endif
 
-// TODO HELP
 
-extern "C" TSMLIBRARY_API void test(double** times, size_t * N);
-extern "C" TSMLIBRARY_API void test_free(double** times);
-
-// TODO
+// TODO docs
 extern "C" TSMLIBRARY_API void tsm_load(
     const char* filename, 
     double** times, 
@@ -22,14 +39,15 @@ extern "C" TSMLIBRARY_API void tsm_load(
     size_t* numdim);
 
 
-// TODO 
+// TODO docs
+// WARNING - can cause process crash
 extern "C" TSMLIBRARY_API void tsm_free(
     double** times,
     double** tensor_data,
     size_t** dims);
 
 
-// TODO
+// TODO docs
 extern "C" TSMLIBRARY_API void tsm_save(
     const char* filename,
     const char* type,

@@ -1,5 +1,25 @@
-// TSM_CPP_Windows.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
+/*
+* Timed Sparse Matrices
+* Copyright (C) 2023  Anton Sobinov
+* https://github.com/nishbo/timed_sparse_matrix
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*
+*
+* Example file for use of TSM in a C++ project.
+*
+*/
 
 #include <iostream>
 #include <string>
@@ -36,8 +56,8 @@ int main()
 	fs::path period_filename_in = exec_dir / "example_period_file.tsm";
 	fs::path stamps_filename_ou = exec_dir / "example_stamps_file_o.tsm";
 	fs::path period_filename_ou = exec_dir / "example_period_file_o.tsm";
-	fs::path stamps_filename_ou2 = exec_dir / "example_stamps_file_o2.tsm";
-	fs::path period_filename_ou2 = exec_dir / "example_period_file_o2.tsm";
+	fs::path stamps_filename_ou2 = exec_dir / "example_stamps_file_2o.tsm";
+	fs::path period_filename_ou2 = exec_dir / "example_period_file_2o.tsm";
 	if (!fs::exists(stamps_filename_in)) {
 		cout << "Input file " << stamps_filename_in << " does not exist." << endl;
 		return -1;

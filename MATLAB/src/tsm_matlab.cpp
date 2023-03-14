@@ -1,5 +1,23 @@
 /*
-* tsm_matlab.cpp - using Timed Sparse Matrices in MATLAB
+* Timed Sparse Matrices
+* Copyright (C) 2023  Anton Sobinov
+* https://github.com/nishbo/timed_sparse_matrix
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*
+*
+* Using Timed Sparse Matrices in MATLAB.
 *
 * Usage : from MATLAB
 *     Loading:
@@ -8,9 +26,6 @@
 *     Saving:
 *         >> tsm('save', filename, times, tensor_data, dims);
 *         >> tsm_save(filename, times, formatted_tensors); -- MATLAB wrapper
-*
-* This is a C++ MEX-file for MATLAB.
-* Copyright 2023 Anton Sobinov
 *
 */
 

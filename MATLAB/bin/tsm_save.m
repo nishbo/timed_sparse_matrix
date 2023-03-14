@@ -1,6 +1,7 @@
 function tsm_save(filename, type, times, formatted_tensors, default_value)
 %TSM_SAVE Saves a tensor into a file from a MATLAB array-tensor
-%   TODO Detailed explanation goes here
+% Wrapper around the .mex function that formats the data for C++ and deals with different order
+% of indices in MATLAB and C.
     dims = size(formatted_tensors);
     dims = dims(2:end);
     Ndims = length(dims);

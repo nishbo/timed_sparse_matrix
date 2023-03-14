@@ -1,12 +1,5 @@
 # project-specific files:
-example_stamps_file_o.tsm
-example_period_file_o.tsm
-example_stamps_file_o2.tsm
-example_period_file_o2.tsm
-example_stamps_file_mo.tsm
-example_period_file_mo.tsm
-example_stamps_file_po.tsm
-example_period_file_po.tsm
+example_*_file_*o.tsm
 
 build
 dist

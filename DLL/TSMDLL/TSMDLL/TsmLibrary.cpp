@@ -1,4 +1,25 @@
-// TsmLibrary.cpp : Defines the exported functions for the DLL.
+/*
+* Timed Sparse Matrices
+* Copyright (C) 2023  Anton Sobinov
+* https://github.com/nishbo/timed_sparse_matrix
+*
+* This program is free software: you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation, either version 3 of the License, or
+* (at your option) any later version.
+*
+* This program is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*
+*
+* Defines the exported functions for the DLL.
+*
+*/
 #include "pch.h" // use stdafx.h in Visual Studio 2017 and earlier
 
 #include <iostream>
@@ -8,42 +29,6 @@
 
 
 using namespace std;
-/*
-from ctypes import *
-import numpy as np
-lib = cdll.LoadLibrary('TSMDLL.dll')
-N = c_size_t()
-ptimes = pointer((c_double*0)())
-
-lib.test(pointer(ptimes), byref(N))
-
-N = N.value
-times = np.array((c_double * N).from_address(addressof(ptimes[0])))
- 
-lib.test_free(pointer(ptimes))
- 
-*/
-
-void test(double** times, size_t* N)
-{
-    *times = (double*) malloc (2 * sizeof(double));
-    if (*times) {
-        (*times)[0] = 10.;
-        (*times)[1] = 20.;
-        std::cout << "Normal\n";
-    }
-    else {
-        std::cout << "Error\n";
-    }
-
-    *N = 2;
-}
-
-// Don't call twice - will kill the process
-void test_free(double** times)
-{
-    free(*times);
-}
 
 
 template<typename T>
@@ -55,7 +40,7 @@ T* vec2arr(std::vector<T>& vec) {
     return arr;
 }
 
-// TODO descr
+// TODO docs
 void tsm_load(
     const char* filename,
     double** times,
@@ -75,6 +60,8 @@ void tsm_load(
     *numdim = tsm.dims.size();
 }
 
+
+// TODO docs
 void tsm_free(double** times, double** tensor_data, size_t** dims)
 {
     free(times);
@@ -83,7 +70,7 @@ void tsm_free(double** times, double** tensor_data, size_t** dims)
 }
 
 
-// TODO descr
+// TODO docs
 void tsm_save(
     const char* filename,
     const char* type,

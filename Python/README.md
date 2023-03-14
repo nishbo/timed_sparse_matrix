@@ -1,6 +1,8 @@
 # Timed Sparse Matrices
 
-TODO Description
+Save timed sparse matrices and tensors to readable files from Python, MATLAB, and C++.
+
+For detailed description, see https://github.com/nishbo/timed_sparse_matrix.
 
 
 ## Getting Started
@@ -23,10 +25,9 @@ Software:
 
 ## Examples
 
-TODO
+TODO. See the `if __name__ == '__main__':` part of tsm.py.
 
 
 ## Authors
 
 - [**Anton Sobinov**](https://github.com/nishbo)
-- Developed in [Bensmaia Lab](http://bensmaialab.org/).

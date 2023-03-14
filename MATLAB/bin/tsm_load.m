@@ -1,6 +1,7 @@
 function [times, formatted_tensors] = tsm_load(filename)
 %TSM_LOAD Loads a tensor from a file into a MATLAB array
-% TODO documentation
+% Wrapper around the .mex function that formats the data for MATLAB and deals with different order
+% of indices in MATLAB and C.
     [times, tensor_data, dims] = tsm('load', filename);
     N = length(times);
     Ndims = length(dims);

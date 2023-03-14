@@ -1,9 +1,24 @@
 #!python3
 # -*- coding: utf-8 -*-
-"""
+"""Main module file. Defines formatted load and save functions.
+
 Timed Sparse Matrices
-Copyright 2023 Anton Sobinov
+Copyright (C) 2023 Anton Sobinov
 https://github.com/nishbo/timed_sparse_matrix
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 """
 import os
 import ctypes
@@ -51,6 +66,15 @@ def _load_low(filename):
 
 
 def load(filename):
+    """Loads a .tsm file into formatted numpy arrays.
+
+    Arguments:
+        filename {str} -- string with the address of the file.
+    Returns:
+        times {numpy array} -- time stamps.
+        formatted_tensor_data {numpy matrix} -- data. Indices:
+            [time index, first data index, second data index, etc.]
+    """
     times, N, tensor_data, dims, M = _load_low(filename)
 
     Mdims = np.insert(dims, 0, N)
@@ -84,6 +108,20 @@ def _save_low(filename, type, times, N, tensor_data, dims, M, default_value=0.):
 
 
 def save(filename, type, times, formatted_tensor_data, default_value=0.):
+    """Saves formatted numpy arrays into a .tsm file.
+
+    Arguments:
+        filename {str} -- string with the address of the file.
+        type {'period' or 'stamps'} -- type of file to export. If 'period' is specified, but the
+            times are not periodic, the export will be aborted.
+        times {numpy array} -- time stamps.
+        formatted_tensor_data {numpy matrix} -- data. Indices:
+            [time index, first data index, second data index, etc.]. Has to match the length of
+            times.
+    Keyword Arguments:
+        default_value {float} -- elements of the tensor equal to this value will be skipped during
+            export, saving space. (default: 0)
+    """
     N = len(times)
     dims = np.shape(formatted_tensor_data)[1:]
     M = int(np.prod(dims))

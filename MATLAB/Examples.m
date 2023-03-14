@@ -1,3 +1,4 @@
+% Examples of loading and saving matrices in MATLAB
 % RUN AFTER INSTALLATION
 
 [times, formatted_tensors] = tsm_load('../example_period_file.tsm');
