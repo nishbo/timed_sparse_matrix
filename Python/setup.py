@@ -36,5 +36,9 @@ setup(
     author='Anton R Sobinov',
     author_email='an.sobinov@gmail.com',
     license='GPL',
-    zip_safe=False
+    zip_safe=False,
+    include_package_data=True,
+    data_files=[(
+        '.', ['tsm/TSMDLL.dll']
+    )],
 )
