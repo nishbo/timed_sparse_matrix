@@ -19,7 +19,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
 
-__all__ = ['tsm']
+__all__ = ['timed_sparse_matrix']
 
 
-from .tsm import load, save
+from .timed_sparse_matrix import load, save

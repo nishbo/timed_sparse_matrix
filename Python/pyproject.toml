@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+[project]
+name = "timed_sparse_matrix"
+version = "0.1.2"
+authors = [
+  { name="Anton R Sobinov", email="an.sobinov@gmail.com" },
+]
+description = "Loading and saving timed sparse tensors."
+readme = "README.md"
+requires-python = ">=3.7"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
+    "Operating System :: Microsoft :: Windows",
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console"
+]
+dependencies = [
+    "numpy",
+]
+[tool.setuptools]
+include-package-data = true
+[tool.setuptools.package-data]
+mypkg = ["TSMDLL.dll"]
+
+[project.urls]
+Homepage = "https://github.com/nishbo/timed_sparse_matrix"

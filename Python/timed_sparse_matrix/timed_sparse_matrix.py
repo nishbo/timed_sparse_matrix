@@ -130,6 +130,7 @@ def save(filename, type, times, formatted_tensor_data, default_value=0.):
 
 
 if __name__ == '__main__':
+    # import timed_sparse_matrix as tsm
     # proto example
     times, formatted_tensor_data = load(os.path.join('..', 'example_period_file.tsm'))
     print(times)
