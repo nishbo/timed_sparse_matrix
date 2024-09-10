@@ -102,7 +102,7 @@ Another option is to use [DLL](./DLL/TSMDLL.dll). It's [header](./DLL/TSMDLL/TSM
 
 ### Python
 
-Python works through a DLL and associated simplified API installed as a Python module. Examples of use are in the end of [tsm.py](./Python/tsm/tsm.py):
+Python works through a DLL and associated simplified API installed as a Python module. Examples of use are in the end of [timed_sparse_matrix.py](./Python/timed_sparse_matrix/timed_sparse_matrix.py):
 
 ```
 times, formatted_tensor_data = load(os.path.join('..', 'example_period_file.tsm'))
@@ -138,13 +138,13 @@ It is recommended to directly include [source code](./src) in your project. Anot
 
 ### Python
 
-Navigate to the `./Python` directory and run:
+Can be installed from PyPi:
 
 ```
-timed_sparse_matrix\Python>python setup.py install
+py -m pip install timed_sparse_matrix
 ```
 
-Replace `python` with any python that you are going to use TSM with. Then you can `include tsm` in your code.
+Replace `python` with any python that you are going to use TSM with. Then you can `include timed_sparse_matrix as tsm` in your code. Alternatively, it can be installed from local source, see Python folder.
 
 Beware, we had experienced that sometimes the DLL is not updated after update to the source code, so it is recommended to uninstall the module and install it again when updating.
 
